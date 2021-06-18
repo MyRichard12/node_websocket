@@ -3,8 +3,7 @@
 const express = require('express');
 const { Server } = require('ws');
 
-// const PORT = process.env.PORT || 2498;
-const PORT = 2498;
+const PORT = process.env.PORT || 2498;
 const INDEX = '/index.html';
 
 const server = express()
@@ -39,4 +38,4 @@ setInterval(() => {
   wss.clients.forEach((client) => {
     client.send(JSON.stringify({"Live reading":(Math.floor(Math.random() * 10 ) +1 )}));
   });
-}, 1000);
+}, 2000);
