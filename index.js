@@ -1,42 +1,28 @@
-/* const express = require('express')
-const path = require('path')
-const PORT = process.env.PORT || 5000
+'use strict';
 
-express()
-  .use(express.static(path.join(__dirname, 'public')))
-  .set('views', path.join(__dirname, 'views'))
-  .set('view engine', 'ejs')
-  .get('/', (req, res) => res.render('pages/index'))
-  .listen(PORT, () => console.log(`Listening on ${ PORT }`)) */
+const express = require('express');
+const { Server } = require('ws');
 
+const PORT = process.env.PORT || 2498;
+const INDEX = '/index.html';
 
-  const express = require('express');
-const webSocket = require('ws');
+const server = express()
+  .use((req, res) => res.sendFile(INDEX, { root: __dirname }))
+  .listen(PORT, () => console.log(`We\'re live on channel : ${PORT}`));
 
-const socketServer = webSocket.Server;
+const wss = new Server({ server });
 
-const server = express().listen(2498);
+wss.on('connection', (ws) => {
+  console.log('Client connected');
 
-express().get('/', (req,res) => {
-    res.json({message:"Enter your port adress to get started"})
-});
+  ws.on('close', () => console.log('Client disconnected'));
 
-const webSocketServer = new socketServer({ server });
-
-webSocketServer.on('connection', (ws) => {
-
-    console.log('[SERVER]: A Client was connected successfully');
-
-    ws.on('close', () => {
-
-    console.log('[SERVER]: Client disconnected');
-    })
-
-    ws.on('message', (message) =>{
+  ws.on('message', (message) =>{
+    // this stays within the server
     console.log('[SERVER]: Received a message => %s', message );
 
-    // broadcast message to all function
-    webSocketServer.clients.forEach(function per(client){
+    // broadcast message to all clients
+    wss.clients.forEach(function per(client){
         if(client !== ws && client.readyState === webSocket.OPEN){
             client.send(message);
             console.log("Broadcast msg: "+ message);
@@ -46,5 +32,10 @@ webSocketServer.on('connection', (ws) => {
 
     })
 
+});
 
-})
+setInterval(() => {
+  wss.clients.forEach((client) => {
+    client.send(JSON.stringify({"Live reading":(Math.floor(Math.random() * 10 ) +1 )}));
+  });
+}, 1000);
