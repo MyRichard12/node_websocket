@@ -19,4 +19,4 @@ $ git push heroku main
 $ heroku open
 ```
 
-- Please note you must have the HEROKU applicatio running on your computer
+- Please note you must have the HEROKU application running on your computer
